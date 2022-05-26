@@ -5,7 +5,7 @@
 #include <switch.h>
 
 #define WEBNX_AUTHOR "bqio"
-#define WEBNX_VERSION "1.0.0"
+#define WEBNX_VERSION "1.2.0"
 #define WEBNX_APP_URL "https://bqio.github.io/nxdb-switch/"
 
 void createWebSession(WebSession *session, WebCommonConfig *config, bool *appletIsAppear)
