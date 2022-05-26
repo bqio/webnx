@@ -1,10 +1,10 @@
 # WebNX
 
-Launch your webapp in Homebrew.
+Downloads torrent games from browser.
 
 ## Usage
 
-Open config.ini and set your web application url. Done :)
+Copy webnx.nro in your sdcard/switch directory.
 
 ## Very thanks
 
