@@ -2,111 +2,72 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
-
 #include <switch.h>
 
-#include "ini.h"
+#define WEBNX_AUTHOR "bqio"
+#define WEBNX_VERSION "1.0.0"
+#define WEBNX_APP_URL "https://bqio.github.io/nxdb-switch/"
 
-typedef struct
+void createWebSession(WebSession *session, WebCommonConfig *config, bool *appletIsAppear)
 {
-    const char* url;
-} conf;
-
-static int handler(void* user, const char* section, const char* name, const char* value)
-{
-    conf* pconfig = (conf*)user;
-    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-    if (MATCH("web", "url")) {
-        pconfig->url = strdup(value);
-    } else {
-        return 0;
-    }
-    return 1;
+    webPageCreate(config, WEBNX_APP_URL);
+    webConfigSetWhitelist(config, "^http*");
+    webConfigSetBootMode(config, WebSessionBootMode_AllForegroundInitiallyHidden);
+    webConfigSetFooter(config, false);
+    webConfigSetLeftStickMode(config, WebLeftStickMode_Cursor);
+    webConfigSetPointer(config, false);
+    webConfigSetTouchEnabledOnContents(config, false);
+    webConfigSetPageCache(config, true);
+    webConfigSetJsExtension(config, true);
+    webSessionCreate(session, config);
+    webSessionStart(session, NULL);
+    webSessionAppear(session, appletIsAppear);
 }
 
-WebExitReason startBrowser(const char* url)
+int main(int argc, char **argv)
 {
-    Result rc = 0;
-    WebCommonConfig config;
-    WebCommonReply reply;
-    WebExitReason exitReason = 0;
-
-    rc = webPageCreate(&config, url);
-    if (R_SUCCEEDED(rc))
-    {
-        rc = webConfigSetWhitelist(&config, "^http*");
-        if (R_SUCCEEDED(rc))
-        {
-            rc = webConfigSetFooter(&config, false);
-            rc = webConfigSetPointer(&config, true);
-            rc = webConfigSetLeftStickMode(&config, WebLeftStickMode_Cursor);
-            rc = webConfigSetScreenShot(&config, true);
-            rc = webConfigSetBootDisplayKind(&config, WebBootDisplayKind_White);
-            rc = webConfigSetJsExtension(&config, true);
-            rc = webConfigShow(&config, &reply);
-        }
-        if (R_SUCCEEDED(rc))
-        {
-            rc = webReplyGetExitReason(&reply, &exitReason);
-            if (R_SUCCEEDED(rc))
-            {
-                return exitReason;
-            }
-        }
-    }
-    return WebExitReason_UnknownE;
-}
-
-int main(int argc, char *argv[])
-{
-
-    consoleInit(NULL);
-    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     PadState pad;
+    WebCommonConfig config;
+    WebSession session;
+
+    bool appletIsAppear;
+    bool messageIsReceived;
+
+    char content[256];
+    u64 size = 256;
+    u64 out_size;
+
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     padInitializeDefault(&pad);
 
     consoleInit(NULL);
-    consoleUpdate(NULL);
-    bool printed = false;
 
-    conf config;
-
-    if (ini_parse("config.ini", handler, &config) < 0) {
-        return 1;
-    }
+    printf("WebNX ver. " WEBNX_VERSION " by " WEBNX_AUTHOR ".\n\n");
+    printf("Press A button to open application.\n\n");
+    printf("Press + button to exit.\n\n\n");
 
     while (appletMainLoop())
     {
-
-        if (printed == false)
-        {
-            if (appletGetAppletType() == AppletType_Application)
-            {
-                WebExitReason exitReason = startBrowser(config.url);
-
-                if (exitReason == WebExitReason_BackButton)
-                {
-                    continue;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else
-            {
-                printf("Please start this homebrew via title-override.\n");
-                printf("(Hold R while starting a game)\n\n");
-                printf("Press + to exit.\n");
-                printed = true;
-            }
-        }
-
         padUpdate(&pad);
         u64 kDown = padGetButtonsDown(&pad);
+
         if (kDown & HidNpadButton_Plus)
             break;
+        if (kDown & HidNpadButton_A)
+            createWebSession(&session, &config, &appletIsAppear);
+
         consoleUpdate(NULL);
+
+        if (appletIsAppear)
+        {
+            webSessionTryReceiveContentMessage(&session, content, size, &out_size, &messageIsReceived);
+
+            if (messageIsReceived)
+            {
+                webSessionRequestExit(&session);
+                printf("[WIP] Downloading %s...\n\n", content);
+            }
+        }
     }
 
     consoleExit(NULL);
