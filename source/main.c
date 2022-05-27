@@ -5,8 +5,9 @@
 #include <switch.h>
 
 #define WEBNX_AUTHOR "bqio"
-#define WEBNX_VERSION "1.2.0"
+#define WEBNX_VERSION "1.2.1"
 #define WEBNX_APP_URL "https://bqio.github.io/nxdb-switch/"
+#define MAX_MESSAGE_SIZE (256)
 
 void createWebSession(WebSession *session, WebCommonConfig *config, bool *appletIsAppear)
 {
@@ -33,9 +34,8 @@ int main(int argc, char **argv)
     bool appletIsAppear;
     bool messageIsReceived;
 
-    char content[256];
-    u64 size = 256;
-    u64 out_size;
+    char message[MAX_MESSAGE_SIZE];
+    u64 outSize;
 
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     padInitializeDefault(&pad);
@@ -60,12 +60,12 @@ int main(int argc, char **argv)
 
         if (appletIsAppear)
         {
-            webSessionTryReceiveContentMessage(&session, content, size, &out_size, &messageIsReceived);
+            webSessionTryReceiveContentMessage(&session, message, sizeof(message), &outSize, &messageIsReceived);
 
             if (messageIsReceived)
             {
                 webSessionRequestExit(&session);
-                printf("[WIP] Downloading %s...\n\n", content);
+                printf("[WIP] Downloading %s...\n\n", message);
             }
         }
     }

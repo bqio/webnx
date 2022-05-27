@@ -6,6 +6,11 @@ Downloads torrent games from browser.
 
 Copy webnx.nro in your sdcard/switch directory.
 
+## Build
+
+- Download and install devkitPro (switch);
+- Open project directory and typing make.
+
 ## TODO
 
 - Implement download torrent via magnet link.
