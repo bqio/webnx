@@ -32,7 +32,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 APP_TITLE :=	WebNX
 APP_AUTHOR :=	bqio
-APP_VERSION :=	1.2.1
+APP_VERSION :=	1.2.2
 
 TARGET		:=	webnx
 BUILD		:=	build

@@ -1,12 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
 #include <switch.h>
 
 #define WEBNX_AUTHOR "bqio"
-#define WEBNX_VERSION "1.2.1"
-#define WEBNX_APP_URL "https://bqio.github.io/nxdb-switch/"
+#define WEBNX_VERSION "1.2.2"
+#define WEBNX_APP_URL "https://nxdb.bqio.ru"
 #define MAX_MESSAGE_SIZE (256)
 
 void createWebSession(WebSession *session, WebCommonConfig *config, bool *appletIsAppear)
@@ -17,6 +14,8 @@ void createWebSession(WebSession *session, WebCommonConfig *config, bool *applet
     webConfigSetFooter(config, false);
     webConfigSetLeftStickMode(config, WebLeftStickMode_Cursor);
     webConfigSetPointer(config, false);
+    webConfigSetBootDisplayKind(config, WebBootDisplayKind_Black);
+    webConfigSetBackgroundKind(config, WebBackgroundKind_Unknown2);
     webConfigSetTouchEnabledOnContents(config, false);
     webConfigSetPageCache(config, true);
     webConfigSetJsExtension(config, true);
@@ -65,7 +64,7 @@ int main(int argc, char **argv)
             if (messageIsReceived)
             {
                 webSessionRequestExit(&session);
-                printf("[WIP] Downloading %s...\n\n", message);
+                printf("Downloading %s...\n\n", message);
             }
         }
     }
